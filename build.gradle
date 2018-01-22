@@ -22,7 +22,7 @@ apply plugin: 'kotlin-android'
 
 repositories {
 	jcenter()
-    mavenCentral()
+	mavenCentral()
 	google()
 }
 
