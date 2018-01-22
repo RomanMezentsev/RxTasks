@@ -1,6 +1,13 @@
 group = 'com.atiqus'
 version = '1.0.0'
 
+/* TODO: Just a workaround. Remove this block after migrate to android gradle plugin 3.x */
+configurations {
+	api
+	implementation
+	testImplementation
+}
+
 buildscript {
 	ext {
 		kotlinVersion = '1.2.20'
@@ -12,13 +19,15 @@ buildscript {
 	}
 
 	dependencies {
-		classpath "com.android.tools.build:gradle:2.3.3"
+		classpath 'com.android.tools.build:gradle:2.3.3'
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+		classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
 	}
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.github.dcendents.android-maven'
 
 repositories {
 	jcenter()
@@ -30,7 +39,6 @@ dependencies {
 	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
 	compile 'com.android.support:support-v4:27.0.2'
-
 	compile 'io.reactivex.rxjava2:rxjava:2.1.8'
 	compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
 }
@@ -48,12 +56,5 @@ android {
 	defaultConfig {
 		minSdkVersion 15
 		targetSdkVersion 27
-	}
-
-	libraryVariants.all { variant ->
-		variant.outputs.each { output ->
-			def newAarName = "${project.name}-${output.baseName}-${project.version}.aar"
-			output.outputFile = new File(output.outputFile.parent, newAarName)
-		}
 	}
 }
