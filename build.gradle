@@ -1,0 +1,59 @@
+group = 'com.atiqus'
+version = '1.0.0'
+
+buildscript {
+	ext {
+		kotlinVersion = '1.2.20'
+	}
+
+	repositories {
+		jcenter()
+		mavenCentral()
+	}
+
+	dependencies {
+		classpath "com.android.tools.build:gradle:2.3.3"
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+	}
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+repositories {
+	jcenter()
+    mavenCentral()
+	google()
+}
+
+dependencies {
+	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+
+	compile 'com.android.support:support-v4:27.0.2'
+
+	compile 'io.reactivex.rxjava2:rxjava:2.1.8'
+	compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+}
+
+android {
+	compileSdkVersion 27
+	buildToolsVersion '27.0.3'
+
+	sourceSets {
+		main {
+			java.srcDirs += 'src/main/kotlin'
+		}
+	}
+
+	defaultConfig {
+		minSdkVersion 15
+		targetSdkVersion 27
+	}
+
+	libraryVariants.all { variant ->
+		variant.outputs.each { output ->
+			def newAarName = "${project.name}-${output.baseName}-${project.version}.aar"
+			output.outputFile = new File(output.outputFile.parent, newAarName)
+		}
+	}
+}
