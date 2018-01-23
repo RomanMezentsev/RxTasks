@@ -3,19 +3,19 @@ package com.atiqus.rxtasks.backend
 import com.atiqus.rxtasks.RxTask
 
 class RxTasksStorage {
-	private val tasks = mutableListOf<RxTask<*>>()
+	private val tasks = mutableMapOf<String, RxTask<*>>()
 
 	fun unsubscribeAll() {
-		tasks.forEach(RxTask<*>::unsubscribe)
+		tasks.values.forEach(RxTask<*>::unsubscribe)
 	}
 
 	@Suppress("UNCHECKED_CAST")
-	fun <T> findTask(tag: String) = findTaskByTag(tag) as? RxTask<T>
+	fun <T> findTask(tag: String) = tasks[tag] as? RxTask<T>
 
-	fun addTask(task: RxTask<*>) {
-		findTaskByTag(task.tag)?.let { throw IllegalStateException("Task with tag '${task.tag}' already registered") }
-		tasks += task
+	fun addTask(tag: String, task: RxTask<*>) {
+		if (tag in tasks) {
+			throw IllegalStateException("Task with tag '$tag' already registered")
+		}
+		tasks += tag to task
 	}
-
-	private fun findTaskByTag(tag: String) = tasks.firstOrNull { it.tag == tag }
 }

@@ -6,7 +6,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
-class RxTask<T>(val tag: String) {
+class RxTask<T> {
 	private var started = false
 	private var cacheable = false
 	private var completed = false

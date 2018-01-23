@@ -36,18 +36,18 @@ class RxTasks private constructor(private val backend: RxTasksBackend) {
 				wrapper.add(backendFragment, FRAGMENT_TAG)
 			}
 			if (backendFragment !is RxTasksBackend) {
-				throw IllegalStateException("Backend fragment tagged '${FRAGMENT_TAG}' has wrong type: " +
+				throw IllegalStateException("Backend fragment tagged '$FRAGMENT_TAG' has wrong type: " +
 						backendFragment.javaClass.name)
 			}
 			return RxTasks(backendFragment)
 		}
 	}
 
-	fun <T> task(taskTag: String = TASK_DEFAULT_TAG): RxTask<T> {
-		var task = backend.tasks.findTask<T>(taskTag)
+	fun <T> task(tag: String = TASK_DEFAULT_TAG): RxTask<T> {
+		var task = backend.tasks.findTask<T>(tag)
 		if (task == null) {
-			task = RxTask(taskTag)
-			backend.tasks.addTask(task)
+			task = RxTask()
+			backend.tasks.addTask(tag, task)
 		}
 		return task
 	}
