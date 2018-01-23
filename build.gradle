@@ -1,5 +1,5 @@
 group = 'com.atiqus'
-version = '1.0.0'
+version = '1.0.1'
 
 /* TODO: Just a workaround. Remove this block after migrate to android gradle plugin 3.x */
 configurations {
