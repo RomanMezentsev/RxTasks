@@ -18,4 +18,8 @@ class RxTasksStorage {
 		}
 		tasks += tag to task
 	}
+
+	fun removeTask(tag: String) {
+		tasks.remove(tag)?.let(RxTask<*>::unsubscribe)
+	}
 }

@@ -52,6 +52,10 @@ class RxTasks private constructor(private val backend: RxTasksBackend) {
 		return task
 	}
 
+	fun remove(tag: String = TASK_DEFAULT_TAG) {
+		backend.tasks.removeTask(tag)
+	}
+
 	private interface FragmentManagerWrapper<T> {
 		fun findByTag(tag: String): T?
 		fun create(): T
