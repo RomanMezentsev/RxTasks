@@ -10,7 +10,7 @@ configurations {
 
 buildscript {
 	ext {
-		kotlinVersion = '1.2.20'
+		kotlinVersion = '1.2.21'
 	}
 
 	repositories {
