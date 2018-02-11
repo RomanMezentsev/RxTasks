@@ -1,5 +1,5 @@
 group = 'com.atiqus'
-version = '1.1.1'
+version = '2.0.0'
 
 /* TODO: Just a workaround. Remove this block after migrate to android gradle plugin 3.x */
 configurations {
@@ -28,6 +28,7 @@ buildscript {
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'maven'
 
 repositories {
 	jcenter()

@@ -10,6 +10,7 @@ class RxTask<T> {
 	private var started = false
 	private var cacheable = false
 	private var completed = false
+	private var lastProgress: Pair<Int, Int>? = null
 	private var result: T? = null
 	private var hasResult = false
 	private var error: Throwable? = null
@@ -18,9 +19,7 @@ class RxTask<T> {
 
 	fun subscribe(resultListener: RxTaskResult<T>) {
 		this.resultListener = resultListener
-		if (completed) {
-			deliverResult()
-		}
+		deliverResult()
 	}
 
 	fun subscribe(onResultAction: (RxTask<T>, T) -> Unit, onErrorAction: ((RxTask<T>, Throwable) -> Unit)?) {
@@ -67,12 +66,39 @@ class RxTask<T> {
 	fun reset() {
 		started = false
 		completed = false
+		lastProgress = null
 		result = null
 		hasResult = false
 		error = null
 	}
 
 	fun start(observable: Observable<T>, cacheable: Boolean = true) {
+		startInternal(observable, TaskObserver(), cacheable)
+	}
+
+	fun restart(observable: Observable<T>, cacheable: Boolean = true) {
+		unsubscribeInternal()
+		reset()
+		start(observable, cacheable)
+	}
+
+	fun startWrapped(observable: Observable<RxTaskValue<T>>, cacheable: Boolean = true) {
+		startInternal(observable, WrappedTaskObserver(), cacheable)
+	}
+
+	fun restartWrapped(observable: Observable<RxTaskValue<T>>, cacheable: Boolean = true) {
+		unsubscribeInternal()
+		reset()
+		startWrapped(observable, cacheable)
+	}
+
+	fun isStarted() = started
+
+	fun isCompleted() = completed
+
+	fun isRunning() = isStarted() && !isCompleted()
+
+	private fun <OT> startInternal(observable: Observable<OT>, observer: Observer<OT>, cacheable: Boolean) {
 		if (started) {
 			return
 		}
@@ -84,20 +110,8 @@ class RxTask<T> {
 		observable
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(TaskObserver())
+				.subscribe(observer)
 	}
-
-	fun restart(observable: Observable<T>, cacheable: Boolean = true) {
-		unsubscribeInternal()
-		reset()
-		start(observable, cacheable)
-	}
-
-	fun isStarted() = started
-
-	fun isCompleted() = completed
-
-	fun isRunning() = isStarted() && !isCompleted()
 
 	private fun unsubscribeInternal() {
 		disposable?.let {
@@ -109,9 +123,12 @@ class RxTask<T> {
 	}
 
 	private fun deliverResult() {
+		deliverProgress()
+
 		if (!completed) {
 			return
 		}
+
 		resultListener?.let { listener ->
 			error?.let {
 				listener.onError(this, it)
@@ -129,6 +146,12 @@ class RxTask<T> {
 		}
 	}
 
+	private fun deliverProgress() {
+		if (!completed) {
+			lastProgress?.let { resultListener?.onProgress(it.first, it.second) }
+		}
+	}
+
 	private inner class TaskObserver : Observer<T> {
 		override fun onSubscribe(disposable: Disposable) {
 			this@RxTask.disposable = disposable
@@ -137,6 +160,33 @@ class RxTask<T> {
 		override fun onNext(item: T) {
 			result = item
 			hasResult = true
+		}
+
+		override fun onComplete() {
+			completed = true
+			deliverResult()
+		}
+
+		override fun onError(error: Throwable) {
+			this@RxTask.error = error
+			completed = true
+			deliverResult()
+		}
+	}
+
+	private inner class WrappedTaskObserver : Observer<RxTaskValue<T>> {
+		override fun onSubscribe(disposable: Disposable) {
+			this@RxTask.disposable = disposable
+		}
+
+		override fun onNext(value: RxTaskValue<T>) {
+			if (value.isProgress()) {
+				lastProgress = value.getProgress()
+				deliverProgress()
+			} else {
+				result = value.getValue()
+				hasResult = true
+			}
 		}
 
 		override fun onComplete() {
