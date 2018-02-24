@@ -69,7 +69,7 @@ class RxTasks private constructor(private val backend: RxTasksBackend) {
 		override fun create() = RxTasksBackendFragment()
 
 		override fun add(fragment: Fragment, tag: String) {
-			fm.beginTransaction().add(fragment, tag).commit()
+			fm.beginTransaction().add(fragment, tag).commitAllowingStateLoss()
 		}
 	}
 
@@ -80,7 +80,7 @@ class RxTasks private constructor(private val backend: RxTasksBackend) {
 		override fun create(): android.support.v4.app.Fragment = RxTasksBackendFragmentCompat()
 
 		override fun add(fragment: android.support.v4.app.Fragment, tag: String) {
-			fm.beginTransaction().add(fragment, tag).commit()
+			fm.beginTransaction().add(fragment, tag).commitAllowingStateLoss()
 		}
 	}
 }
